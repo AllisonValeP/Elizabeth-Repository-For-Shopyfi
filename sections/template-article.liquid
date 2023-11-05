@@ -1,4 +1,4 @@
-<article class="py-8">
+<article class="py-8" itemscope itemtype="http://schema.org/BlogPosting">
     {% for block in section.blocks %}
         {% case block.type %}
 
@@ -8,17 +8,17 @@
                             <a href="{{ blog.url }}" class="text-base uppercase text-gray-500 hover-gray-900 font-bold">
                                 {{ blog.title }}
                             </a>
-                            <h1 class="text-4xl md:text-6xl font-medium">
-                                {{ article.title }}
+                            <h1 class="text-4xl md:text-6xl font-medium" itemprop="headline">
+                                   {{ article.title }}
                             </h1>
                     </div>
                 </div>             
     
             {% when 'article_author' %}
                 <div class="flex items-center justify-center">
-                    <div class="max-w-7xl text-center">
+                    <div class="max-w-7xl text-center" itemscope itemtype="http://schema.org/Person">
                         {% if section.settings.enable_author %}
-                            <small>{{ article.author }}</small>
+                            <small itemprop="author">{{ article.author }}</small>
                         {% endif %} 
                     </div>                           
                 </div>              
@@ -27,7 +27,7 @@
                 <div class="flex items-center justify-center">
                     <div class="max-w-7xl text-center">
                         {% if section.settings.enable_published_date %}
-                            <time datetime="{{ article.published_at | date :'%Y-%m-%d' }}">
+                            <time itemprop="datePublished dateCreated" datetime="{{ article.published_at | date :'%Y-%m-%d' }}">
                                 {{ article.published_at |  date: format: 'on_date' }}
                             </time>
                         {% endif %}
@@ -36,7 +36,7 @@
                 
     
             {% when 'featured_image' %}
-                <div class="max-w-7xl bg-blue-100 rounded-lg mx-2 md:mx-auto overflow-hidden my-4">
+                <div itemprop="image" class="max-w-7xl bg-blue-100 rounded-lg mx-2 md:mx-auto overflow-hidden my-4">
                     {% if article.image != blank %}
                         <img class="w-full h-80 md:h-96 object-cover object-center"src="{{article.image | img_url: 'large'}}" alt="{{ article.image.alt }}">
 
@@ -49,7 +49,7 @@
             
             {% when 'article_content' %}           
                 <div class="flex items-center justify-center">
-                    <div class="max-w-4xl">
+                    <div itemprop="articleBody" class="max-w-4xl">
                         {{ article.content }}
                     </div>                    
                 </div>
@@ -113,22 +113,21 @@
                                 {% for error in form.errors %}
                                    <li>
                                         <span>
-                                            {{form.errors.messags[error]}}
+                                            {{form.errors.messages[error]}}
                                         </span>
                                    </li>
                                 {% endfor %}
                             </ul>
                         </div>
-                    {% elsif form.posted_seccessfully? %}
-                        <div class="flex flex-row items-center w-full my-3 p-5">
-                            <div class="text-green-500">
-                                {% render 'icon-success' %}
+                        
+                        {% elsif form.posted_successfully? %}
+                            <div class="flex flex-row items-center w-full my-3 p-5">
+                                <div class="text-green-500">
+                                    {% render 'icon-success' %}
+                                </div>
+                                <div class="text-sm font-medium ml-3">Comment is posted successfully</div>
                             </div>
-                            <div class="text-sm font-medium ml-3">
-                                Comment posted successfully
-                            </div>
-                        </div>
-                {% endif %}
+                        {% endif %}
 
                 <div class="px-1 md:flex mb-3">
                     <div class="px-3 md:w-1/2">
@@ -192,6 +191,34 @@
         {% endform %}
     </div>
 {% endif %}
+
+<script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": {{article.title | json}},
+        "articleBody": {{article.content | strip_html | json }},
+        {% if article.excerpt != blank %}
+            "description": {{ article.excerpt | strip_html | json }},
+        {% endif %}
+
+        {% if article.image %}
+            "image": [
+                {{article.image | img_url: "medium" | prepend: 'https:'  | json }}
+            ],
+        {%endif%}
+        "datePublished": {{article.published_at | date: format: "default" | json }},
+        "dateCreated": {{article.criated_at | date: format: "default" | json }},
+        "author":{
+            "@type": "Person",
+            "name": {{ article.author | json }}
+        },
+        "publisher":{
+            "@type": "Organization",
+            "name": {{shop.name | json }}
+        }
+    }
+</script>
 
 {% schema %}
 {
