@@ -19,7 +19,7 @@
                                </a>      
 
                                 {% else %}
-                                    {{'image' | placeholder_svg_tag: 'w-full h-80 object-cover bg-slate-100' }}
+                                    {{ 'image' | placeholder_svg_tag: 'w-full h-80 object-cover bg-slate-100' }}
                             {% endif %}
 
                             <div class="p-4">
@@ -29,7 +29,7 @@
                 
                                 {% if article.excerpt.size > 0 %}
                                     <p>
-                                        {{ article.excerpt | strip_html | truncatewords: 15  }}
+                                        {{ article.excerpt | strip_html | truncatewords: 15 }}
                                     </p>
                                 {% else %}
                                     <p>{{ article.content | strip_html | truncatewords: 15 }}</p>               
